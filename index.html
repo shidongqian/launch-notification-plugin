@@ -164,8 +164,11 @@
 
         var table = await bitable.base.getTableById(selection.tableId);
         var tableName = await table.getName();
-        var baseToken = await bitable.base.getId();
-        log('表格名称: ' + tableName);
+        // 从 URL 提取 baseToken（bitable.base.getId() 在 SDK 0.3.2 中不存在）
+        var baseToken = '';
+        var urlMatch = window.location.href.match(/\/wiki\/([a-zA-Z0-9]+)/);
+        if (urlMatch) baseToken = urlMatch[1];
+        log('表格名称: ' + tableName + ', baseToken: ' + baseToken);
 
         // 显示表格信息
         var infoCard = document.getElementById('infoCard');
