@@ -160,15 +160,15 @@
         log('当前表格: ' + selection.tableId);
 
         var table = await bitable.base.getTableById(selection.tableId);
-        var meta = await table.getMeta();
+        var tableName = await table.getName();
         var baseToken = await bitable.base.getId();
-        log('表格名称: ' + meta.name);
+        log('表格名称: ' + tableName);
 
         // 显示表格信息
         var infoCard = document.getElementById('infoCard');
         infoCard.style.display = 'block';
-        infoCard.innerHTML = '<strong>当前表格:</strong> ' + meta.name +
-          '<br><strong>日期:</strong> ' + extractDateFromTableName(meta.name) +
+        infoCard.innerHTML = '<strong>当前表格:</strong> ' + tableName +
+          '<br><strong>日期:</strong> ' + extractDateFromTableName(tableName) +
           '<br><strong>链接:</strong> https://' + window.location.hostname + '/wiki/' + baseToken + '?table=' + selection.tableId;
 
         // 读取所有记录
