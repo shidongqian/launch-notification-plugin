@@ -9,142 +9,90 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f5f6f7;
-      padding: 20px;
+      padding: 16px;
       color: #1f2329;
     }
-    .container { max-width: 800px; margin: 0 auto; }
-    h1 { font-size: 20px; margin-bottom: 16px; color: #1f2329; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { font-size: 18px; margin-bottom: 12px; color: #1f2329; }
     .status {
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-radius: 6px;
-      margin-bottom: 16px;
-      font-size: 14px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 1.5;
     }
     .status.info { background: #e8f3ff; color: #165dff; }
     .status.success { background: #e8ffea; color: #00b42a; }
     .status.error { background: #ffece8; color: #f53f3f; }
+    .status.warn { background: #fff7e8; color: #ff7d00; }
+    pre {
+      background: #fff;
+      border: 1px solid #e5e6eb;
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
     .btn {
       display: inline-block;
-      padding: 10px 24px;
+      padding: 8px 20px;
       background: #165dff;
       color: white;
       border: none;
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
       margin-right: 8px;
-      margin-bottom: 8px;
+      margin-top: 8px;
     }
     .btn:hover { background: #0e42d2; }
     .btn:disabled { background: #c9cdd4; cursor: not-allowed; }
     .btn.secondary { background: #f2f3f5; color: #1f2329; }
     .btn.secondary:hover { background: #e5e6eb; }
-    pre {
-      background: #fff;
-      border: 1px solid #e5e6eb;
-      border-radius: 6px;
-      padding: 16px;
-      font-size: 13px;
-      line-height: 1.6;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      margin-top: 16px;
-      max-height: 500px;
-      overflow-y: auto;
-    }
-    .section {
-      background: #fff;
-      border: 1px solid #e5e6eb;
-      border-radius: 6px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .section h2 { font-size: 16px; margin-bottom: 12px; }
-    .field-list { font-size: 13px; color: #4e5969; }
-    .field-list div { padding: 4px 0; }
-    .config-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-    .config-row label { width: 120px; flex-shrink: 0; color: #4e5969; }
-    .config-row input {
-      flex: 1;
-      padding: 6px 10px;
-      border: 1px solid #e5e6eb;
-      border-radius: 4px;
-      font-size: 13px;
-    }
     .log {
-      font-size: 12px;
+      font-size: 11px;
       color: #86909c;
       margin-top: 8px;
       line-height: 1.8;
     }
+    .info-card {
+      background: #fff;
+      border: 1px solid #e5e6eb;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #4e5969;
+    }
+    .info-card strong { color: #1f2329; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1> 上线通知生成插件</h1>
-
-    <div id="status" class="status info">正在初始化...</div>
-
-    <div class="section">
-      <h2>当前表格信息</h2>
-      <div id="tableInfo" class="field-list">等待加载...</div>
-    </div>
-
-    <div class="section">
-      <h2>目标表配置</h2>
-      <div class="config-row">
-        <label>目标表 Base Token:</label>
-        <input type="text" id="targetBaseToken" value="Ik1Vw2GWMijSuOk64i1cUk0gntc" />
-      </div>
-      <div class="config-row">
-        <label>目标表 Table ID:</label>
-        <input type="text" id="targetTableId" value="tbldr4KqIXdNcpBx" />
-      </div>
-      <div class="config-row">
-        <label>通知内容字段 ID:</label>
-        <input type="text" id="contentFieldId" value="flddFq4ORc" />
-      </div>
-      <div class="config-row">
-        <label>日期字段 ID:</label>
-        <input type="text" id="dateFieldId" value="" placeholder="可选，留空则不写入" />
-      </div>
-      <div class="config-row">
-        <label>链接字段 ID:</label>
-        <input type="text" id="linkFieldId" value="" placeholder="可选，留空则不写入" />
-      </div>
-      <div class="config-row">
-        <label>Personal Access Token:</label>
-        <input type="password" id="pat" placeholder="用于写入目标表的 PAT" />
-      </div>
-    </div>
-
+    <h1>上线通知生成插件</h1>
+    <div id="status" class="status info">正在加载 SDK...</div>
+    <div id="infoCard" class="info-card" style="display:none;"></div>
     <div>
-      <button class="btn" id="generateBtn" onclick="generateNotification()">生成通知内容</button>
-      <button class="btn secondary" id="copyBtn" onclick="copyResult()" disabled>复制结果</button>
-      <button class="btn secondary" id="writeBtn" onclick="writeToTarget()" disabled>写入目标表</button>
+      <button class="btn secondary" id="copyBtn" onclick="copyResult()" disabled style="display:none;">复制内容</button>
+      <button class="btn" id="retryBtn" onclick="run()" disabled style="display:none;">重新生成</button>
     </div>
-
+    <pre id="result" style="display:none;"></pre>
     <div id="log" class="log"></div>
-
-    <pre id="result">生成的通知内容将显示在这里...</pre>
   </div>
 
-  <script type="module">
-    import { bitable } from 'https://unpkg.com/@lark-base-open/js-sdk@0.3.2/dist/index.esm.js';
+  <script>
+    // ===== 硬编码配置（无需用户输入） =====
+    var TARGET_BASE_TOKEN = 'Ik1Vw2GWMijSuOk64i1cUk0gntc';
+    var TARGET_TABLE_ID = 'tbldr4KqIXdNcpBx';
+    var CONTENT_FIELD_ID = 'flddFq4ORc';
 
-    let currentTable = null;
-    let currentTableMeta = null;
-    let generatedContent = '';
-    let sourceTableUrl = '';
-
-    // 数据中心映射
-    const DATA_CENTER_MAP = {
+    var DATA_CENTER_MAP = {
       '国内': '国内 22:00',
       '全球中心': '海外全球',
       '全球中心（欧洲）': '海外全球',
@@ -153,308 +101,236 @@
       '新加坡': '海外战区'
     };
 
+    var bitable = null;
+    var generatedContent = '';
+
     function log(msg) {
-      const logEl = document.getElementById('log');
-      logEl.innerHTML += `<div>${new Date().toLocaleTimeString()} - ${msg}</div>`;
+      var el = document.getElementById('log');
+      el.innerHTML += '<div>' + new Date().toLocaleTimeString() + ' - ' + msg + '</div>';
     }
 
-    function setStatus(msg, type = 'info') {
-      const el = document.getElementById('status');
+    function setStatus(msg, type) {
+      var el = document.getElementById('status');
       el.textContent = msg;
-      el.className = `status ${type}`;
+      el.className = 'status ' + (type || 'info');
     }
 
-    // 初始化：获取当前表格信息
-    async function init() {
-      try {
-        log('开始获取当前表格信息...');
-        const selection = await bitable.base.getSelection();
-        log(`获取到选择: tableId=${selection.tableId}, viewId=${selection.viewId}`);
-
-        currentTable = await bitable.base.getTableById(selection.tableId);
-        currentTableMeta = await currentTable.getMeta();
-        log(`表格名称: ${currentTableMeta.name}`);
-
-        // 构建源表 URL
-        const baseToken = await bitable.base.getId();
-        sourceTableUrl = `https://${window.location.hostname}/wiki/${baseToken}?table=${selection.tableId}`;
-        log(`源表 URL: ${sourceTableUrl}`);
-
-        // 显示表格信息
-        const fields = await currentTable.getFieldMetaList();
-        let infoHtml = `<div><strong>表格名称:</strong> ${currentTableMeta.name}</div>`;
-        infoHtml += `<div><strong>Base Token:</strong> ${baseToken}</div>`;
-        infoHtml += `<div><strong>Table ID:</strong> ${selection.tableId}</div>`;
-        infoHtml += `<div><strong>字段列表 (${fields.length}):</strong></div>`;
-        fields.forEach(f => {
-          infoHtml += `<div>&nbsp;&nbsp;• ${f.name} (${f.type}) - ID: ${f.id}</div>`;
-        });
-        document.getElementById('tableInfo').innerHTML = infoHtml;
-
-        setStatus('✅ 插件初始化成功，点击"生成通知内容"开始', 'success');
-        document.getElementById('generateBtn').disabled = false;
-      } catch (err) {
-        setStatus(`❌ 初始化失败: ${err.message}`, 'error');
-        log(`错误: ${err.stack}`);
-      }
-    }
-
-    // 从表格名称提取日期
-    function extractDateFromTableName(tableName) {
-      // 匹配格式如 "261010发版清单" → "2026/10/10"
-      const match = tableName.match(/(\d{2})(\d{2})(\d{2})/);
-      if (match) {
-        const year = `20${match[1]}`;
-        const month = match[2];
-        const day = match[3];
-        return `${year}/${month}/${day}`;
-      }
+    function extractDateFromTableName(name) {
+      var match = name.match(/(\d{2})(\d{2})(\d{2})/);
+      if (match) return '20' + match[1] + '/' + match[2] + '/' + match[3];
       return '';
     }
 
-    // 生成通知内容
-    window.generateNotification = async function() {
+    // ===== 复制结果 =====
+    window.copyResult = function() {
+      if (!generatedContent) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(generatedContent).then(function() {
+          setStatus('已复制到剪贴板', 'success');
+        }).catch(function() {
+          fallbackCopy();
+        });
+      } else {
+        fallbackCopy();
+      }
+    };
+
+    function fallbackCopy() {
+      var ta = document.createElement('textarea');
+      ta.value = generatedContent;
+      ta.style.cssText = 'position:fixed;left:-9999px;';
+      document.body.appendChild(ta);
+      ta.select();
       try {
-        setStatus('⏳ 正在读取数据...', 'info');
-        document.getElementById('generateBtn').disabled = true;
-        log('开始读取记录...');
+        document.execCommand('copy');
+        setStatus('已复制到剪贴板', 'success');
+      } catch (e) {
+        setStatus('复制失败，请手动选择内容复制', 'warn');
+      }
+      document.body.removeChild(ta);
+    }
 
-        const records = [];
-        let hasMore = true;
-        let pageToken = undefined;
+    // ===== 主流程 =====
+    window.run = async function() {
+      try {
+        setStatus('正在读取数据...', 'info');
+        document.getElementById('retryBtn').style.display = 'none';
 
+        var selection = await bitable.base.getSelection();
+        log('当前表格: ' + selection.tableId);
+
+        var table = await bitable.base.getTableById(selection.tableId);
+        var meta = await table.getMeta();
+        var baseToken = await bitable.base.getId();
+        log('表格名称: ' + meta.name);
+
+        // 显示表格信息
+        var infoCard = document.getElementById('infoCard');
+        infoCard.style.display = 'block';
+        infoCard.innerHTML = '<strong>当前表格:</strong> ' + meta.name +
+          '<br><strong>日期:</strong> ' + extractDateFromTableName(meta.name) +
+          '<br><strong>链接:</strong> https://' + window.location.hostname + '/wiki/' + baseToken + '?table=' + selection.tableId;
+
+        // 读取所有记录
+        var records = [];
+        var hasMore = true;
+        var pageToken = undefined;
         while (hasMore) {
-          const result = await currentTable.getRecordList({
-            pageSize: 500,
-            pageToken
-          });
-          records.push(...result.records);
+          var result = await table.getRecordList({ pageSize: 500, pageToken: pageToken });
+          records.push.apply(records, result.records);
           hasMore = result.hasMore;
           pageToken = result.pageToken;
-          log(`已读取 ${records.length} 条记录`);
+        }
+        log('读取到 ' + records.length + ' 条记录');
+
+        if (records.length === 0) {
+          setStatus('当前表格没有数据', 'warn');
+          return;
         }
 
-        log(`共读取 ${records.length} 条记录，开始生成通知内容...`);
-
-        // 获取所有字段元信息
-        const fieldMetaList = await currentTable.getFieldMetaList();
-        const fieldMap = {};
-        fieldMetaList.forEach(f => { fieldMap[f.id] = f; });
-
-        // 找到关键字段
-        const findFieldId = (names) => {
-          for (const name of names) {
-            const found = fieldMetaList.find(f => f.name === name);
+        // 获取字段元信息
+        var fieldMetaList = await table.getFieldMetaList();
+        var findFieldId = function(names) {
+          for (var i = 0; i < names.length; i++) {
+            var found = fieldMetaList.find(function(f) { return f.name === names[i]; });
             if (found) return found.id;
           }
           return null;
         };
 
-        const dataCenterFieldId = findFieldId(['数据中心']);
-        const flowFieldId = findFieldId(['需求FLOW', '需求flow', 'Flow']);
-        const taskFieldId = findFieldId(['任务内容', '任务']);
-        const typeFieldId = findFieldId(['上线类型', '类型']);
-        const systemFieldId = findFieldId(['系统']);
-        const projectFieldId = findFieldId(['项目名称', '项目']);
-        const devFieldId = findFieldId(['开发负责人', '开发', '负责人']);
+        var dcFid = findFieldId(['数据中心']);
+        var flowFid = findFieldId(['需求FLOW', '需求flow', 'Flow']);
+        var taskFid = findFieldId(['任务内容', '任务']);
+        var typeFid = findFieldId(['上线类型', '类型']);
+        var sysFid = findFieldId(['系统']);
+        var projFid = findFieldId(['项目名称', '项目']);
+        var devFid = findFieldId(['开发负责人', '开发', '负责人']);
 
-        log(`字段映射: 数据中心=${dataCenterFieldId}, FLOW=${flowFieldId}, 任务=${taskFieldId}, 类型=${typeFieldId}, 系统=${systemFieldId}, 项目=${projectFieldId}, 开发=${devFieldId}`);
+        log('字段: 数据中心=' + dcFid + ', FLOW=' + flowFid + ', 任务=' + taskFid + ', 类型=' + typeFid + ', 系统=' + sysFid + ', 项目=' + projFid + ', 开发=' + devFid);
 
         // 按数据中心分组
-        const groups = {
-          '国内 22:00': [],
-          '海外全球': [],
-          '海外战区': []
-        };
+        var groups = { '国内 22:00': [], '海外全球': [], '海外战区': [] };
 
-        records.forEach(record => {
-          const dcRaw = record.fields[dataCenterFieldId];
-          const dcValue = Array.isArray(dcRaw) ? dcRaw[0] : dcRaw;
-          const category = DATA_CENTER_MAP[dcValue] || dcValue;
-
+        records.forEach(function(record) {
+          var dcRaw = record.fields[dcFid];
+          var dcValue = Array.isArray(dcRaw) ? dcRaw[0] : dcRaw;
+          var category = DATA_CENTER_MAP[dcValue] || dcValue || '其他';
           if (!groups[category]) groups[category] = [];
 
-          const flow = record.fields[flowFieldId] || '';
-          const task = record.fields[taskFieldId] || '';
-          const type = Array.isArray(record.fields[typeFieldId]) ? record.fields[typeFieldId][0] : record.fields[typeFieldId] || '';
-          const system = record.fields[systemFieldId] || '';
-          const project = Array.isArray(record.fields[projectFieldId]) ? record.fields[projectFieldId][0] : record.fields[projectFieldId] || '';
-          const devs = record.fields[devFieldId] || [];
+          var flow = record.fields[flowFid] || '';
+          var task = record.fields[taskFid] || '';
+          var typeVal = record.fields[typeFid];
+          typeVal = Array.isArray(typeVal) ? typeVal[0] : (typeVal || '');
+          var sys = record.fields[sysFid] || '';
+          var proj = record.fields[projFid];
+          proj = Array.isArray(proj) ? proj[0] : (proj || '');
+          var devs = record.fields[devFid] || [];
 
-          // 格式化开发负责人为飞书用户标签
-          let personTags = '';
+          // 格式化开发负责人
+          var personTags = '';
           if (Array.isArray(devs) && devs.length > 0) {
-            personTags = devs.map(d => {
+            personTags = devs.map(function(d) {
               if (typeof d === 'object' && d.id) {
-                return `<person id='${d.id}' show_name=true show_avatar=false style='capsule'>`;
+                return "<person id='" + d.id + "' show_name=true show_avatar=false style='capsule'>";
               }
               return d;
             }).join(' ');
           }
 
-          // 构建单条记录
-          let line = '';
-          if (type) line += `- ${type}：`;
-          line += `\n> ${system}<font color='grey-500'>*（${project}）*</font>`;
-          if (personTags) line += `- ${personTags}`;
+          // 构建单条
+          var line = '';
+          if (typeVal) line += '- ' + typeVal + '：';
+          line += '\n> ' + sys + "<font color='grey-500'>*（" + proj + "）*</font>";
+          if (personTags) line += '- ' + personTags;
 
           groups[category].push({
-            tag: flow ? `<a href='${flow}'>${task}</a>` : task,
-            line
+            tag: flow ? "<a href='" + flow + "'>" + task + '</a>' : task,
+            line: line
           });
         });
 
-        // 生成最终 markdown
-        let md = '';
-        const sectionOrder = ['国内 22:00', '海外全球', '海外战区'];
-        let globalNum = 1;
-
-        sectionOrder.forEach(section => {
-          const items = groups[section];
-          if (items.length === 0) return;
-
-          md += `**${section}：**\n\n`;
-          items.forEach((item, idx) => {
-            md += `${globalNum}. ${item.tag}\n${item.line}\n\n`;
-            globalNum++;
+        // 生成 markdown
+        var md = '';
+        var sectionOrder = ['国内 22:00', '海外全球', '海外战区'];
+        var num = 1;
+        sectionOrder.forEach(function(section) {
+          var items = groups[section];
+          if (!items || items.length === 0) return;
+          md += '**' + section + '：**\n\n';
+          items.forEach(function(item) {
+            md += num + '. ' + item.tag + '\n' + item.line + '\n\n';
+            num++;
           });
         });
 
         generatedContent = md.trim();
-        document.getElementById('result').textContent = generatedContent;
+
+        // 显示结果
+        var resultEl = document.getElementById('result');
+        resultEl.style.display = 'block';
+        resultEl.textContent = generatedContent;
+
+        // 自动复制
+        window.copyResult();
+
+        setStatus('生成完成，共 ' + records.length + ' 条记录，内容已自动复制', 'success');
+        document.getElementById('copyBtn').style.display = 'inline-block';
         document.getElementById('copyBtn').disabled = false;
-        document.getElementById('writeBtn').disabled = false;
-        setStatus(`✅ 生成完成，共 ${records.length} 条记录`, 'success');
+        document.getElementById('retryBtn').style.display = 'inline-block';
         log('通知内容生成完成');
       } catch (err) {
-        setStatus(`❌ 生成失败: ${err.message}`, 'error');
-        log(`错误: ${err.stack}`);
-      } finally {
-        document.getElementById('generateBtn').disabled = false;
+        setStatus('执行失败: ' + err.message, 'error');
+        log('错误: ' + err.stack);
+        document.getElementById('retryBtn').style.display = 'inline-block';
       }
     };
 
-    // 复制结果
-    window.copyResult = function() {
-      navigator.clipboard.writeText(generatedContent).then(() => {
-        setStatus('✅ 已复制到剪贴板', 'success');
-        log('内容已复制');
-      }).catch(err => {
-        setStatus(`❌ 复制失败: ${err.message}`, 'error');
-      });
-    };
+    // ===== SDK 加载 =====
+    async function loadSDK() {
+      // 方案1: 检查是否已由飞书父页面注入
+      if (window.bitable) {
+        log('SDK 已由父页面注入');
+        bitable = window.bitable;
+        return true;
+      }
 
-    // 写入目标表
-    window.writeToTarget = async function() {
-      try {
-        const pat = document.getElementById('pat').value.trim();
-        if (!pat) {
-          setStatus('❌ 请先填写 Personal Access Token', 'error');
-          return;
-        }
+      // 方案2: 从 CDN 动态加载 ESM
+      var cdns = [
+        'https://cdn.jsdelivr.net/npm/@lark-base-open/js-sdk@0.3.2/dist/index.mjs',
+        'https://unpkg.com/@lark-base-open/js-sdk@0.3.2/dist/index.mjs',
+        'https://cdn.jsdelivr.net/npm/@lark-base-open/js-sdk@latest/dist/index.mjs'
+      ];
 
-        setStatus('⏳ 正在写入目标表...', 'info');
-        document.getElementById('writeBtn').disabled = true;
-
-        const targetBaseToken = document.getElementById('targetBaseToken').value.trim();
-        const targetTableId = document.getElementById('targetTableId').value.trim();
-        const contentFieldId = document.getElementById('contentFieldId').value.trim();
-        const dateFieldId = document.getElementById('dateFieldId').value.trim();
-        const linkFieldId = document.getElementById('linkFieldId').value.trim();
-
-        // 提取日期和构建链接
-        const appDate = extractDateFromTableName(currentTableMeta.name);
-        const checklistLink = sourceTableUrl;
-
-        log(`目标表: base=${targetBaseToken}, table=${targetTableId}`);
-        log(`日期: ${appDate}, 链接: ${checklistLink}`);
-
-        // 先查找是否已有记录（通过日期或链接匹配）
-        let existingRecordId = null;
+      for (var i = 0; i < cdns.length; i++) {
         try {
-          const searchResp = await fetch(
-            `https://open.feishu.cn/open-apis/bitable/v1/apps/${targetBaseToken}/tables/${targetTableId}/records/search`,
-            {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${pat}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                field_names: [contentFieldId],
-                filter: {
-                  conjunction: 'and',
-                  conditions: []
-                }
-              })
-            }
-          );
-          const searchData = await searchResp.json();
-          if (searchData.data && searchData.data.records && searchData.data.records.length > 0) {
-            existingRecordId = searchData.data.records[0].record_id;
-            log(`找到现有记录: ${existingRecordId}`);
+          log('尝试加载: ' + cdns[i]);
+          var mod = await import(cdns[i]);
+          if (mod && mod.bitable) {
+            bitable = mod.bitable;
+            log('SDK 加载成功 (from ' + cdns[i] + ')');
+            return true;
           }
         } catch (e) {
-          log(`搜索现有记录失败（可能无权限），将创建新记录: ${e.message}`);
+          log('CDN 加载失败: ' + e.message);
         }
-
-        // 构建要写入的内容（追加模式）
-        let finalContent = generatedContent;
-        if (existingRecordId) {
-          // 读取现有内容并追加
-          try {
-            const getResp = await fetch(
-              `https://open.feishu.cn/open-apis/bitable/v1/apps/${targetBaseToken}/tables/${targetTableId}/records/${existingRecordId}`,
-              {
-                headers: { 'Authorization': `Bearer ${pat}` }
-              }
-            );
-            const getData = await getResp.json();
-            const existingContent = getData.data?.fields?.[contentFieldId] || '';
-            finalContent = existingContent + '\n\n---\n\n' + generatedContent;
-            log('已读取现有内容并追加');
-          } catch (e) {
-            log(`读取现有内容失败，将直接写入: ${e.message}`);
-          }
-        }
-
-        // 构建请求体
-        const fields = { [contentFieldId]: finalContent };
-        if (dateFieldId && appDate) fields[dateFieldId] = appDate;
-        if (linkFieldId && checklistLink) fields[linkFieldId] = checklistLink;
-
-        const url = existingRecordId
-          ? `https://open.feishu.cn/open-apis/bitable/v1/apps/${targetBaseToken}/tables/${targetTableId}/records/${existingRecordId}`
-          : `https://open.feishu.cn/open-apis/bitable/v1/apps/${targetBaseToken}/tables/${targetTableId}/records`;
-
-        const method = existingRecordId ? 'PUT' : 'POST';
-
-        const resp = await fetch(url, {
-          method,
-          headers: {
-            'Authorization': `Bearer ${pat}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ fields })
-        });
-
-        const data = await resp.json();
-        if (data.code === 0) {
-          setStatus(`✅ 写入成功！记录ID: ${data.data?.record_id}`, 'success');
-          log('写入目标表成功');
-        } else {
-          setStatus(`❌ 写入失败: ${data.msg}`, 'error');
-          log(`API 错误: ${JSON.stringify(data)}`);
-        }
-      } catch (err) {
-        setStatus(`❌ 写入失败: ${err.message}`, 'error');
-        log(`错误: ${err.stack}`);
-      } finally {
-        document.getElementById('writeBtn').disabled = false;
       }
-    };
 
-    // 页面加载时初始化
+      return false;
+    }
+
+    // ===== 初始化 =====
+    async function init() {
+      var loaded = await loadSDK();
+      if (loaded) {
+        setStatus('SDK 加载成功，正在读取数据...', 'info');
+        // 稍等一下再执行，确保 SDK 完全就绪
+        setTimeout(function() { run(); }, 300);
+      } else {
+        setStatus('SDK 加载失败，请检查网络或联系管理员', 'error');
+        log('所有 CDN 均无法加载 SDK，可能被飞书安全策略拦截');
+      }
+    }
+
     init();
   </script>
 </body>
