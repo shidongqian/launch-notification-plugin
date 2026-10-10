@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>上线通知生成插件 v2</title>
+  <title>上线通知生成插件 v3</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -89,13 +89,13 @@
     <div id="log" class="log"></div>
   </div>
 
-  <script>
+  <script type="module">
     // ===== 硬编码配置（无需用户输入） =====
-    var TARGET_BASE_TOKEN = 'Ik1Vw2GWMijSuOk64i1cUk0gntc';
-    var TARGET_TABLE_ID = 'tbldr4KqIXdNcpBx';
-    var CONTENT_FIELD_ID = 'flddFq4ORc';
+    const TARGET_BASE_TOKEN = 'Ik1Vw2GWMijSuOk64i1cUk0gntc';
+    const TARGET_TABLE_ID = 'tbldr4KqIXdNcpBx';
+    const CONTENT_FIELD_ID = 'flddFq4ORc';
 
-    var DATA_CENTER_MAP = {
+    const DATA_CENTER_MAP = {
       '国内': '国内 22:00',
       '全球中心': '海外全球',
       '全球中心（欧洲）': '海外全球',
@@ -104,22 +104,22 @@
       '新加坡': '海外战区'
     };
 
-    var bitable = null;
-    var generatedContent = '';
+    let bitable = null;
+    let generatedContent = '';
 
     function log(msg) {
-      var el = document.getElementById('log');
+      const el = document.getElementById('log');
       el.innerHTML += '<div>' + new Date().toLocaleTimeString() + ' - ' + msg + '</div>';
     }
 
     function setStatus(msg, type) {
-      var el = document.getElementById('status');
+      const el = document.getElementById('status');
       el.textContent = msg;
       el.className = 'status ' + (type || 'info');
     }
 
     function extractDateFromTableName(name) {
-      var match = name.match(/(\d{2})(\d{2})(\d{2})/);
+      const match = name.match(/(\d{2})(\d{2})(\d{2})/);
       if (match) return '20' + match[1] + '/' + match[2] + '/' + match[3];
       return '';
     }
@@ -139,7 +139,7 @@
     };
 
     function fallbackCopy() {
-      var ta = document.createElement('textarea');
+      const ta = document.createElement('textarea');
       ta.value = generatedContent;
       ta.style.cssText = 'position:fixed;left:-9999px;';
       document.body.appendChild(ta);
@@ -159,34 +159,52 @@
         setStatus('正在读取数据...', 'info');
         document.getElementById('retryBtn').style.display = 'none';
 
-        var selection = await bitable.base.getSelection();
-        log('当前表格: ' + selection.tableId);
-
-        var table = await bitable.base.getTableById(selection.tableId);
-        var tableName = await table.getName();
-        // 从父页面URL提取baseToken（插件运行在iframe中，window.location是GitHub Pages地址）
-        var baseToken = '';
-        var referrer = document.referrer || (window.parent !== window ? window.parent.location.href : '');
-        var urlMatch = referrer.match(/\/wiki\/([a-zA-Z0-9]+)/);
+        // 使用 getActiveTable() 获取当前表格（参考插件的正确用法）
+        const table = await bitable.base.getActiveTable();
+        const tableName = await table.getName();
+        
+        // 从父页面URL提取baseToken
+        let baseToken = '';
+        const referrer = document.referrer || (window.parent !== window ? window.parent.location.href : '');
+        const urlMatch = referrer.match(/\/wiki\/([a-zA-Z0-9]+)/);
         if (urlMatch) baseToken = urlMatch[1];
+        
         log('表格名称: ' + tableName + ', baseToken: ' + baseToken);
 
         // 显示表格信息
-        var infoCard = document.getElementById('infoCard');
+        const infoCard = document.getElementById('infoCard');
         infoCard.style.display = 'block';
         infoCard.innerHTML = '<strong>当前表格:</strong> ' + tableName +
           '<br><strong>日期:</strong> ' + extractDateFromTableName(tableName) +
-          '<br><strong>链接:</strong> https://' + window.location.hostname + '/wiki/' + baseToken + '?table=' + selection.tableId;
+          '<br><strong>链接:</strong> https://' + window.location.hostname + '/wiki/' + baseToken + '?table=' + (await bitable.base.getSelection()).tableId;
 
-        // 读取所有记录
-        var records = [];
-        var hasMore = true;
-        var pageToken = undefined;
-        while (hasMore) {
-          var result = await table.getRecordList({ pageSize: 500, pageToken: pageToken });
-          records.push.apply(records, result.records);
-          hasMore = result.hasMore;
-          pageToken = result.pageToken;
+        // 获取字段元信息
+        const fieldMetaList = await table.getFieldMetaList();
+        const nameToId = new Map();
+        fieldMetaList.forEach(m => nameToId.set(m.name, m.id));
+
+        const findFieldId = (names) => {
+          for (const name of names) {
+            if (nameToId.has(name)) return nameToId.get(name);
+          }
+          return null;
+        };
+
+        const dcFid = findFieldId(['数据中心']);
+        const flowFid = findFieldId(['需求FLOW', '需求flow', 'Flow']);
+        const taskFid = findFieldId(['任务内容', '任务']);
+        const typeFid = findFieldId(['上线类型', '类型']);
+        const sysFid = findFieldId(['系统']);
+        const projFid = findFieldId(['项目名称', '项目']);
+        const devFid = findFieldId(['开发负责人', '开发', '负责人']);
+
+        log('字段: 数据中心=' + dcFid + ', FLOW=' + flowFid + ', 任务=' + taskFid + ', 类型=' + typeFid + ', 系统=' + sysFid + ', 项目=' + projFid + ', 开发=' + devFid);
+
+        // 使用 getRecordList() 获取记录（返回可迭代对象）
+        const recordList = await table.getRecordList();
+        const records = [];
+        for (const record of recordList) {
+          records.push(record);
         }
         log('读取到 ' + records.length + ' 条记录');
 
@@ -195,48 +213,41 @@
           return;
         }
 
-        // 获取字段元信息
-        var fieldMetaList = await table.getFieldMetaList();
-        var findFieldId = function(names) {
-          for (var i = 0; i < names.length; i++) {
-            var found = fieldMetaList.find(function(f) { return f.name === names[i]; });
-            if (found) return found.id;
-          }
-          return null;
-        };
-
-        var dcFid = findFieldId(['数据中心']);
-        var flowFid = findFieldId(['需求FLOW', '需求flow', 'Flow']);
-        var taskFid = findFieldId(['任务内容', '任务']);
-        var typeFid = findFieldId(['上线类型', '类型']);
-        var sysFid = findFieldId(['系统']);
-        var projFid = findFieldId(['项目名称', '项目']);
-        var devFid = findFieldId(['开发负责人', '开发', '负责人']);
-
-        log('字段: 数据中心=' + dcFid + ', FLOW=' + flowFid + ', 任务=' + taskFid + ', 类型=' + typeFid + ', 系统=' + sysFid + ', 项目=' + projFid + ', 开发=' + devFid);
-
         // 按数据中心分组
-        var groups = { '国内 22:00': [], '海外全球': [], '海外战区': [] };
+        const groups = { '国内 22:00': [], '海外全球': [], '海外战区': [] };
 
-        records.forEach(function(record) {
-          var dcRaw = record.fields[dcFid];
-          var dcValue = Array.isArray(dcRaw) ? dcRaw[0] : dcRaw;
-          var category = DATA_CENTER_MAP[dcValue] || dcValue || '其他';
+        for (const record of records) {
+          const recordId = record.recordId || record.id || record.record_id;
+          
+          // 使用 getCellString() 获取单元格值（参考插件的正确用法）
+          const dcValue = dcFid ? await table.getCellString(dcFid, recordId) : '';
+          const category = DATA_CENTER_MAP[dcValue] || dcValue || '其他';
           if (!groups[category]) groups[category] = [];
 
-          var flow = record.fields[flowFid] || '';
-          var task = record.fields[taskFid] || '';
-          var typeVal = record.fields[typeFid];
-          typeVal = Array.isArray(typeVal) ? typeVal[0] : (typeVal || '');
-          var sys = record.fields[sysFid] || '';
-          var proj = record.fields[projFid];
-          proj = Array.isArray(proj) ? proj[0] : (proj || '');
-          var devs = record.fields[devFid] || [];
+          const flow = flowFid ? await table.getCellString(flowFid, recordId) : '';
+          const task = taskFid ? await table.getCellString(taskFid, recordId) : '';
+          const typeVal = typeFid ? await table.getCellString(typeFid, recordId) : '';
+          const sys = sysFid ? await table.getCellString(sysFid, recordId) : '';
+          const proj = projFid ? await table.getCellString(projFid, recordId) : '';
+          
+          // 开发负责人可能是多选用户字段
+          let devs = [];
+          if (devFid) {
+            const devRaw = await table.getCellString(devFid, recordId);
+            // 如果是JSON数组格式，尝试解析
+            try {
+              const parsed = JSON.parse(devRaw);
+              if (Array.isArray(parsed)) devs = parsed;
+            } catch (e) {
+              // 如果不是JSON，当作普通字符串
+              if (devRaw) devs = [devRaw];
+            }
+          }
 
           // 格式化开发负责人
-          var personTags = '';
-          if (Array.isArray(devs) && devs.length > 0) {
-            personTags = devs.map(function(d) {
+          let personTags = '';
+          if (devs.length > 0) {
+            personTags = devs.map(d => {
               if (typeof d === 'object' && d.id) {
                 return "<person id='" + d.id + "' show_name=true show_avatar=false style='capsule'>";
               }
@@ -245,7 +256,7 @@
           }
 
           // 构建单条
-          var line = '';
+          let line = '';
           if (typeVal) line += '- ' + typeVal + '：';
           line += '\n> ' + sys + "<font color='grey-500'>*（" + proj + "）*</font>";
           if (personTags) line += '- ' + personTags;
@@ -254,17 +265,17 @@
             tag: flow ? "<a href='" + flow + "'>" + task + '</a>' : task,
             line: line
           });
-        });
+        }
 
         // 生成 markdown
-        var md = '';
-        var sectionOrder = ['国内 22:00', '海外全球', '海外战区'];
-        var num = 1;
-        sectionOrder.forEach(function(section) {
-          var items = groups[section];
+        let md = '';
+        const sectionOrder = ['国内 22:00', '海外全球', '海外战区'];
+        let num = 1;
+        sectionOrder.forEach(section => {
+          const items = groups[section];
           if (!items || items.length === 0) return;
           md += '**' + section + '：**\n\n';
-          items.forEach(function(item) {
+          items.forEach(item => {
             md += num + '. ' + item.tag + '\n' + item.line + '\n\n';
             num++;
           });
@@ -273,7 +284,7 @@
         generatedContent = md.trim();
 
         // 显示结果
-        var resultEl = document.getElementById('result');
+        const resultEl = document.getElementById('result');
         resultEl.style.display = 'block';
         resultEl.textContent = generatedContent;
 
@@ -302,19 +313,19 @@
       }
 
       // 方案2: 从 CDN 动态加载 ESM
-      var cdns = [
+      const cdns = [
         'https://cdn.jsdelivr.net/npm/@lark-base-open/js-sdk@0.3.2/dist/index.mjs',
         'https://unpkg.com/@lark-base-open/js-sdk@0.3.2/dist/index.mjs',
         'https://cdn.jsdelivr.net/npm/@lark-base-open/js-sdk@latest/dist/index.mjs'
       ];
 
-      for (var i = 0; i < cdns.length; i++) {
+      for (const cdn of cdns) {
         try {
-          log('尝试加载: ' + cdns[i]);
-          var mod = await import(cdns[i]);
+          log('尝试加载: ' + cdn);
+          const mod = await import(cdn);
           if (mod && mod.bitable) {
             bitable = mod.bitable;
-            log('SDK 加载成功 (from ' + cdns[i] + ')');
+            log('SDK 加载成功 (from ' + cdn + ')');
             return true;
           }
         } catch (e) {
@@ -327,11 +338,11 @@
 
     // ===== 初始化 =====
     async function init() {
-      var loaded = await loadSDK();
+      const loaded = await loadSDK();
       if (loaded) {
         setStatus('SDK 加载成功，正在读取数据...', 'info');
         // 稍等一下再执行，确保 SDK 完全就绪
-        setTimeout(function() { run(); }, 300);
+        setTimeout(() => { run(); }, 300);
       } else {
         setStatus('SDK 加载失败，请检查网络或联系管理员', 'error');
         log('所有 CDN 均无法加载 SDK，可能被飞书安全策略拦截');
