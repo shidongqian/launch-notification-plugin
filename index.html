@@ -164,9 +164,10 @@
 
         var table = await bitable.base.getTableById(selection.tableId);
         var tableName = await table.getName();
-        // 从 URL 提取 baseToken（bitable.base.getId() 在 SDK 0.3.2 中不存在）
+        // 从父页面URL提取baseToken（插件运行在iframe中，window.location是GitHub Pages地址）
         var baseToken = '';
-        var urlMatch = window.location.href.match(/\/wiki\/([a-zA-Z0-9]+)/);
+        var referrer = document.referrer || (window.parent !== window ? window.parent.location.href : '');
+        var urlMatch = referrer.match(/\/wiki\/([a-zA-Z0-9]+)/);
         if (urlMatch) baseToken = urlMatch[1];
         log('表格名称: ' + tableName + ', baseToken: ' + baseToken);
 
